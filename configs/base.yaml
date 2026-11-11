@@ -1,0 +1,8 @@
+name: base            # nombre de la corrida
+variant: cadena       # dataset con el método original
+epochs: 50            # épocas, como en el cuaderno 3 del avance
+lr: 1.0e-3            # tasa de aprendizaje fija
+schedule: constant    # sin scheduler: así estaba la red del avance
+ema_decay: 0.0        # sin promedio móvil de pesos
+norm: batch           # batchnorm, como en el avance
+dropout: 0.3          # dropout del avance

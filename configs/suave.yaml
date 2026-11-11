@@ -1,0 +1,12 @@
+name: suave            # nombre de la corrida
+variant: cadena        # dataset (se puede cambiar con --variant conexa)
+epochs: 100            # el doble de épocas que el avance
+lr: 1.0e-3             # tasa de aprendizaje máxima
+schedule: cosine       # la tasa sube 3 épocas y luego baja en coseno hasta cero
+warmup_epochs: 3       # épocas de calentamiento
+ema_decay: 0.99        # se evalúa un promedio móvil de los pesos
+val_views: 3           # 3 vistas por superficie en validation para medir mejor
+label_smoothing: 0.05  # etiquetas un poco suavizadas para que la red no se confíe de más
+grad_clip: 1.0         # tope a la norma del gradiente para evitar pasos enormes
+norm: batch            # misma batchnorm del avance
+dropout: 0.3           # mismo dropout del avance
