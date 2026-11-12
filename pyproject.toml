@@ -1,0 +1,10 @@
+[project]                              # datos del paquete
+name = "genuscnn"                      # nombre del paquete
+version = "1.0.0"                      # versión
+description = "cnn que clasifica el género de superficies a partir de imágenes de nubes de puntos"  # resumen
+requires-python = ">=3.10"             # versión mínima de python
+
+[tool.pytest.ini_options]              # configuración de los tests
+pythonpath = ["src"]                   # permite importar genuscnn sin instalarlo
+testpaths = ["tests"]                  # carpeta de los tests
+filterwarnings = ["ignore::DeprecationWarning:skimage.*"]  # calla un aviso interno de scikit-image con numpy nuevo

@@ -1,0 +1,10 @@
+numpy>=1.26          # arreglos numéricos
+scipy>=1.11          # grafos dispersos para medir la topología de las mallas
+pandas>=2.0          # tablas
+matplotlib>=3.8      # gráficos
+scikit-learn>=1.3    # métricas y la línea base de la tinta
+scikit-image>=0.22   # marching cubes para las superficies conexas
+torch>=2.1           # la red neuronal
+pyyaml>=6.0          # lee las configuraciones
+pytest>=7.4          # corre los tests
+jupyter>=1.0         # abre los cuadernos
