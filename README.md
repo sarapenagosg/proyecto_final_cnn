@@ -2,7 +2,7 @@
 
 Proyecto final de Sistemas Inteligentes 2 (introducción al deep learning), Universidad El Bosque.
 
-**Autoras:** Sara Valentina Penagos Gamba y [nombre de la compañera].
+**Autoras:** Sara Valentina Penagos Gamba y Danna Camila Sánchez Ochoa.
 
 Una red convolucional recibe una imagen 2D de una nube de puntos y tiene que decir el **género** de la superficie de la que salió: cuántos huecos tiene, de 0 (esfera) a 5. El género es un invariante topológico, así que no cambia si la superficie se estira, se aplasta o se rota. La pregunta del proyecto es si una CNN sencilla puede aprender algo así a partir de imágenes, y qué es lo que mira en realidad cuando acierta.
 
@@ -10,7 +10,7 @@ Una red convolucional recibe una imagen 2D de una nube de puntos y tiene que dec
 
 *Una fila por género. A la izquierda el dataset `cadena` (g toros sueltos) y a la derecha el dataset `conexa` (una sola superficie de género g).*
 
-## Resultados en una mirada
+## Resultados
 
 Accuracy en test, sobre familias de superficies que la red nunca vio. La red final se entrenó con tres semillas y se reporta media ± desviación estándar.
 
@@ -48,19 +48,10 @@ La corrección está en `src/genuscnn/geometry.py`. Cada toro se describe con su
 
 El dataset `cadena` se conserva porque es el del avance y porque comparar los dos es lo que permite responder la pregunta de la sección 4.
 
-Otras inconsistencias que se corrigieron:
-
-- La esfera original tenía los polos duplicados y su χ medida daba 0. Ahora los vértices repetidos se sueldan antes de medir y da 2.
-- El metadata ahora guarda la χ y el número de piezas **medidos**, no los declarados.
-- El cuaderno 3 del avance decía que las superficies de género alto llenan más la imagen. Es al revés: como todas las nubes se escalan al mismo tamaño, una cadena más larga queda más delgada y pinta menos. Está corregido en `notebooks/avance/`.
-- El avance concluía que no había sobreajuste porque la accuracy de train y la de validation coincidían en la mejor época. Esa época se elegía sobre una curva que saltaba entre 0.37 y 0.82, así que la coincidencia dependía de en qué pico cayera. Con la curva estable la comparación sí dice algo.
-- Las 3 vistas de test de una misma superficie se contaban como 3 aciertos o errores independientes. Ahora se reporta también la accuracy por superficie.
-- Validation tenía 1 vista por superficie (300 imágenes). Ahora tiene 3 (900 imágenes).
-- Los cuadernos 2 y 3 repetían todo el código. Ahora hay una sola librería con tests y los cuadernos solo la usan.
 
 ## 2. La red
 
-Es la misma CNN del avance, con 258 246 parámetros:
+Una CNN con 258 246 parámetros:
 
 - 4 bloques de convolución 3×3, BatchNorm, ReLU y max pooling 2×2. La imagen pasa de 64 a 32, 16, 8 y 4 píxeles, y los canales de 1 a 32, 64, 128 y 128.
 - Average pooling global.
@@ -106,7 +97,7 @@ Qué dice la tabla:
 - **BatchNorm tiene que ver.** Al cambiarla por GroupNorm la rugosidad baja a 0.040, y al darle más memoria a sus estadísticas empeora a 0.142. En evaluación BatchNorm usa promedios guardados de batches anteriores. Con una tasa fija y alta los pesos cambian rápido y esos promedios quedan desactualizados, y esa es la lectura que mejor encaja con los dos resultados.
 - **Lo que más ayuda es el promedio móvil de los pesos.** En lugar de evaluar los pesos del último paso se evalúa un promedio de los últimos pasos, incluyendo las estadísticas de BatchNorm. Solo con eso la rugosidad baja a 0.023.
 
-La receta final (`configs/suave.yaml`) junta el coseno con calentamiento, el promedio móvil con decaimiento 0.99, validation con 3 vistas, suavizado de etiquetas 0.05, recorte de gradiente a norma 1 y 100 épocas. La arquitectura no cambia.
+Finalmente, (`configs/suave.yaml`) junta el coseno con calentamiento, el promedio móvil con decaimiento 0.99, validation con 3 vistas, suavizado de etiquetas 0.05, recorte de gradiente a norma 1 y 100 épocas. La arquitectura no cambia.
 
 | | red del avance | receta final |
 |---|---|---|
@@ -115,7 +106,7 @@ La receta final (`configs/suave.yaml`) junta el coseno con calentamiento, el pro
 | accuracy en test por imagen | 0.803 | 0.904 |
 | accuracy en test por superficie | 0.910 | 0.973 |
 
-Dos aclaraciones para leer bien la figura. La rugosidad de la receta final se mide sobre 100 épocas y la del avance sobre 50; con 50 épocas la misma receta da 0.013. Y en la receta final la pérdida de validation queda por debajo de la de train porque la de train se calcula con dropout, con etiquetas suavizadas y sobre vistas nuevas, mientras que la de validation usa los pesos promediados sin nada de eso.
+En el archivo final la pérdida de validation queda por debajo de la de train porque la de train se calcula con dropout, con etiquetas suavizadas y sobre vistas nuevas, mientras que la de validation usa los pesos promediados sin nada de eso.
 
 En el dataset `conexa` pasa lo mismo: la red del avance tiene rugosidad 0.114 y la receta final 0.014.
 
@@ -146,7 +137,7 @@ Los géneros 0 y 1 se reconocen casi siempre. Los errores se concentran en los g
 - Todas las superficies son cadenas rectas de toros. El largo de la cadena crece con el género en los dos datasets, y aunque la línea base de la silueta muestra que eso no basta para explicar el resultado, el experimento del cruce descarta el atajo de contar piezas y no todos los atajos posibles. El siguiente paso sería generar superficies de género g con otras formas (en anillo, ramificadas) o volver a EuLearn con esta receta.
 - El zip original de 300 superficies no está en el repositorio. Los resultados de este README usan un dataset `cadena` generado completo con el método replicado (35 familias por género). Si se pone `topology_dataset.zip` en `data/`, el script conserva las 300 originales y genera las familias 05 a 34 con las mismas semillas del cuaderno de ampliación, y los números pueden cambiar un poco.
 - La receta final se eligió mirando la validation del dataset `cadena` con una semilla. La tabla del estudio muestra también el test de cada experimento, así que ese test se miró más de una vez. Las cifras con tres semillas de la primera tabla son las más confiables.
-- Todo se entrenó en CPU con una sola arquitectura. Una corrida de 100 épocas tarda unos 15 a 20 minutos.
+- Todo se entrenó en CPU con una sola arquitectura. 
 
 ## Estructura del repositorio
 
